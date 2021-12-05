@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -12,29 +12,22 @@ export class SpotifyDataService {
   private knowTopArtists = [];
 
   private recommendationsSubject = new BehaviorSubject<
-    { name: string; image: string }[]
+    { id: string; name: string; image: string; isSelected: boolean }[]
   >([]);
-  recommendations$: Observable<{ name: string; image: string }[]> =
-    this.recommendationsSubject.asObservable();
+  recommendations$: Observable<
+    { id: string; name: string; image: string; isSelected: boolean }[]
+  > = this.recommendationsSubject.asObservable();
 
   constructor(private httpClient: HttpClient) {
     this.initToken();
   }
 
-  getArtist(artist: string): Observable<any> {
+  private getArtist(artist: string): Observable<any> {
     return this.get(`search?q=${artist}&type=artist`);
   }
 
-  getArtistTopTacks(artist: string): Observable<any> {
-    return this.getArtist(artist).pipe(
-      switchMap((rep: any) => {
-        const foundArtist =
-          rep.artists.items.find(
-            (ar: any) => ar.name.toLowerCase() === artist.toLowerCase()
-          ) || rep.artists.items[0];
-        return this.get(`artists/${foundArtist.id}/top-tracks?market=FR`);
-      })
-    );
+  getArtistTopTacks(artistId: string): Observable<any> {
+    return this.get(`artists/${artistId}/top-tracks?market=FR`);
   }
 
   getTopArtist(): Observable<any> {
@@ -57,19 +50,19 @@ export class SpotifyDataService {
     );
   }
 
-  searchTopTracksArtist(artist: string): Observable<any> {
-    return this.getArtistTopTacks(artist).pipe(
+  searchTopTracksArtist(artistId: string): Observable<any> {
+    return this.getArtistTopTacks(artistId).pipe(
       map((response: any) => response.tracks)
     );
   }
 
   makePlaylistFromArtists(
     name: string,
-    artists: { name: string; image: string }[],
+    artists: { id: string; name: string; image: string }[],
     callback: action
   ) {
     forkJoin(
-      artists.map((artist) => this.getArtistTopTacks(artist.name))
+      artists.map((artist) => this.getArtistTopTacks(artist.id))
     ).subscribe((responses) => {
       this.makePlaylist(
         name,
@@ -159,15 +152,26 @@ export class SpotifyDataService {
 
   private makeRecommendations(
     response: any
-  ): { name: string; image: string }[] {
+  ): { id: string; name: string; image: string; isSelected: boolean }[] {
     return this.recommendationsSubject.value.concat(
       (response.artists as []).map((relatedArtist: any) => {
-        return {
-          name: relatedArtist.name,
-          image: relatedArtist.images[0].url,
-        };
+        return this.makeRecommandation(relatedArtist);
       })
     );
+  }
+
+  private makeRecommandation(artist: any): {
+    id: string;
+    name: any;
+    image: any;
+    isSelected: false;
+  } {
+    return {
+      id: artist.id,
+      name: artist.name,
+      image: artist.images[0].url,
+      isSelected: false,
+    };
   }
 
   private get(url: string) {

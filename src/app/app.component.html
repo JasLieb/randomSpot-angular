@@ -42,7 +42,7 @@
     <div *ngFor="let artist of artists$ | async" class="artists-item">
       <app-artist-item
         [artist]="artist"
-        (artistSelected)="selectArtist(artist, $event)"
+        (click)="selectArtist(artist)"
       ></app-artist-item>
     </div>
   </div>

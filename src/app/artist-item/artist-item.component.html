@@ -1,12 +1,13 @@
 <div
   class="artist-item-container"
-  (click)="selectItem()"
-  [ngClass]="{'selected-artist-item': isSelected}"
+  [ngClass]="{ 'selected-artist-item': artist.isSelected }"
 >
   <h4>{{ artist.name }}</h4>
   <img [src]="artist.image" class="artist-item-image" />
-  <button mat-button (click)="searchTopTrackArtist($event)">Top Tracks !</button>
-  <ul>
+  <button mat-button (click)="toggleTopTrackArtist($event)">
+    Top Tracks !
+  </button>
+  <ul [hidden]="!isVisibleTopTracks">
     <li *ngFor="let track of topTracks$ | async">
       {{ track.name }}
     </li>

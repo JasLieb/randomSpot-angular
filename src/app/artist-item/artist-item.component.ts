@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { SpotifyDataService } from 'src/services/spotify-data.service';
+import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 
 @Component({
   selector: 'app-artist-item',
@@ -8,26 +8,28 @@ import { SpotifyDataService } from 'src/services/spotify-data.service';
   styleUrls: ['./artist-item.component.scss'],
 })
 export class ArtistItemComponent implements OnInit {
-  @Input() artist: any;
-  @Output() artistSelected = new EventEmitter<boolean>();
+  @Input() artist: { id: string, name: string; image: string, isSelected: boolean };
 
   topTracks$: Observable<any[]> = of([]);
+  isVisibleTopTracks = false;
+  
+  private wasToggledOnce = false;
 
-  isSelected = false;
-
-  constructor(private spotifyService: SpotifyDataService) {}
+  constructor(private spotifyService: SpotifyDataService) {
+    this.artist = {id: '', name: '', image: '', isSelected: false};
+  }
 
   ngOnInit(): void {}
 
-  searchTopTrackArtist($event: any) {
+  toggleTopTrackArtist($event: any) {
     $event.stopPropagation();
-    this.topTracks$ = this.spotifyService.searchTopTracksArtist(
-      this.artist.name
-    );
-  }
-
-  selectItem() {
-    this.isSelected = !this.isSelected;
-    this.artistSelected.emit(this.isSelected);
+    this.isVisibleTopTracks = !this.isVisibleTopTracks;
+    
+    if(!this.wasToggledOnce) {
+      this.wasToggledOnce = true;
+      this.topTracks$ = this.spotifyService.searchTopTracksArtist(
+        this.artist.id
+      );
+    }
   }
 }
