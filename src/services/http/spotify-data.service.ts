@@ -152,7 +152,7 @@ export class SpotifyDataService {
     url += '&client_id=' + encodeURIComponent(clientId);
     url += '&scope=' + encodeURIComponent(scope);
     url +=
-      '&redirect_uri=' + encodeURIComponent('http://localhost:4200/redirect');
+      '&redirect_uri=' + encodeURIComponent(environment.redirect_url);
     url += '&state=' + encodeURIComponent(state);
     window.location.href = url;
   }

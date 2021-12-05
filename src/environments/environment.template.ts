@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  user_id: '<insert your spotify user id here>'
+  user_id: '<insert your spotify user id here>',
+  redirect_url: '<insert your spotify redirect url here>'
 };
 
 /*
