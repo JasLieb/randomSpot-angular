@@ -1,14 +1,22 @@
 <div class="app-container">
-  <input
-    #artistSearch
-    placeholder="Ex. Artist"
-    value="Lettuce"
-    (keydown)="onKeyPressed($event)"
-  />
-  <button mat-button (click)="searchSimilarArtists(artistSearch.value)">Go !</button>
-</div>
-<div class="artists-container">
-  <div *ngFor="let artist of artists$ | async" class="artists-item">
-    <app-artist-item [artist]="artist"></app-artist-item>
+  <div class="app-search-actions">
+    <label>
+      Give an artist's name : 
+    </label>
+    <input
+      class="artist-search-input"
+      #artistSearch
+      placeholder="Ex. Artist"
+      value="Lettuce"
+      (keydown)="onKeyPressed($event)"
+    />
+    <button mat-button (click)="searchSimilarArtists(artistSearch.value)">
+      Go !
+    </button>
+  </div>
+  <div class="artists-container">
+    <div *ngFor="let artist of artists$ | async" class="artists-item">
+      <app-artist-item [artist]="artist"></app-artist-item>
+    </div>
   </div>
 </div>

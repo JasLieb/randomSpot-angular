@@ -1,13 +1,23 @@
 .app-container {
+  height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-content: center;
   justify-content: center;
-  min-height: 15%;
+}
+
+.app-search-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.artist-search-input {
+  width: 25%;
 }
 
 .artists-container {
-  max-height: 80%;
   display: flex;
   flex-flow: row wrap;
   align-items: center;
