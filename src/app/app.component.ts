@@ -14,7 +14,12 @@ export class AppComponent {
   artists$: Observable<
     { id: string; name: string; image: string; isSelected: boolean }[]
   >;
-  selectedArtists: any[] = [];
+  selectedArtists: {
+    id: string;
+    name: string;
+    image: string;
+    isSelected: boolean;
+  }[] = [];
 
   constructor(private spotifyService: SpotifyDataService) {
     this.errors$ = spotifyService.errors$;
@@ -61,9 +66,14 @@ export class AppComponent {
     else {
       this.selectedArtists = this.selectedArtists.reduce((acc, selectedArtist) => {
         if(selectedArtist.id !== artist.id)
-          acc.push(this.selectArtist);
+          acc.push(selectedArtist);
         return acc;
-      }, []);
+      }, [] as {
+        id: string;
+        name: string;
+        image: string;
+        isSelected: boolean;
+      }[]);
     }
   }
 

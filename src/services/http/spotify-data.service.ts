@@ -204,7 +204,7 @@ export class SpotifyDataService {
     return {
       id: artist.id,
       name: artist.name,
-      image: artist.images[0].url,
+      image: artist.images[0] ? artist.images[0].url : '',
       isSelected: false,
     };
   }
