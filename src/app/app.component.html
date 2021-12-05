@@ -16,7 +16,7 @@
   </div>
   <div class="artists-container">
     <div *ngFor="let artist of artists$ | async" class="artists-item">
-      <app-artist-item [artist]="artist"></app-artist-item>
+      <app-artist-item [artist]="artist" (artistSelected)="selectArtist(artist, $event)"></app-artist-item>
     </div>
   </div>
 </div>
