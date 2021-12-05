@@ -8,7 +8,7 @@ type action = () => void;
 @Injectable({ providedIn: 'root' })
 export class SpotifyDataService {
   private USER_ID = environment.user_id;
-  private token = '';
+  private token: string | null = null;
   private knowTopArtists = [];
 
   private recommendationsSubject = new BehaviorSubject<
@@ -19,7 +19,7 @@ export class SpotifyDataService {
   > = this.recommendationsSubject.asObservable();
 
   constructor(private httpClient: HttpClient) {
-    this.initToken();
+    this.initToken(() => this.emitTopArtists());
   }
 
   private getArtist(artist: string): Observable<any> {
@@ -104,16 +104,26 @@ export class SpotifyDataService {
     return this.get('me');
   }
 
-  private initToken() {
+  private initToken(callback: action) {
+    if (!this.tryInitToken()) {
+      this.authorize();
+      return;
+    }
+    callback();
+  }
+
+  private tryInitToken(): boolean {
+    this.token = sessionStorage.getItem('token');
     const url = window.location.href;
-    if (url.includes('access_token=')) {
+    if (!this.token && url.includes('access_token=')) {
       this.token = url.substring(
         url.indexOf('access_token=') + 'access_token='.length,
         url.lastIndexOf('&token_type=')
       );
-    } else this.authorize();
-
-    this.emitTopArtists();
+      window.location.href = url.substring(0, url.indexOf('/'));
+      sessionStorage.setItem('token', this.token);
+    }
+    return !!this.token;
   }
 
   private emitTopArtists() {
