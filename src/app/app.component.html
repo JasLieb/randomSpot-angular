@@ -1,22 +1,49 @@
 <div class="app-container">
-  <div class="app-search-actions">
-    <label>
-      Give an artist's name : 
-    </label>
+  <div class="app-actions">
+    <label class="app-actions-label"> Give an artist's name : </label>
     <input
-      class="artist-search-input"
+      class="app-action-input"
       #artistSearch
       placeholder="Ex. Artist"
       value="Lettuce"
-      (keydown)="onKeyPressed($event)"
+      (keydown)="onSearchKeyPressed($event)"
     />
-    <button mat-button (click)="searchSimilarArtists(artistSearch.value)">
+    <button
+      class="app-action-button"
+      mat-button
+      (click)="searchSimilarArtists(artistSearch.value)"
+    >
       Go !
+    </button>
+  </div>
+  <div
+    class="app-actions"
+    *ngIf="selectedArtists && selectedArtists.length > 0"
+  >
+    <label class="app-actions-label">
+      You have selected {{ selectedArtists.length }} artists
+    </label>
+    <input
+      class="app-action-input"
+      #playlistName
+      placeholder="Ex. Awesome playlist"
+      value="Awesome playlist"
+      (keydown)="onPlaylistKeyPressed($event)"
+    />
+    <button
+      class="app-action-button"
+      mat-button
+      (click)="makePlaylist(playlistName.value)"
+    >
+      Make new playlist !
     </button>
   </div>
   <div class="artists-container">
     <div *ngFor="let artist of artists$ | async" class="artists-item">
-      <app-artist-item [artist]="artist" (artistSelected)="selectArtist(artist, $event)"></app-artist-item>
+      <app-artist-item
+        [artist]="artist"
+        (artistSelected)="selectArtist(artist, $event)"
+      ></app-artist-item>
     </div>
   </div>
 </div>

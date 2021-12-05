@@ -6,15 +6,24 @@
   justify-content: center;
 }
 
-.app-search-actions {
+.app-actions {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
 }
 
-.artist-search-input {
-  width: 25%;
+.app-actions-label,
+.app-action-button {
+  flex: 0.15;
+  padding: 1em;
+}
+
+.app-action-input {
+  flex: 1;
+  max-width: 25%;
+  box-shadow: gray;
+  text-align: center;
 }
 
 .artists-container {

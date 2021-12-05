@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { SpotifyDataService } from 'src/services/spotify-data.service';
 
 @Component({
@@ -10,12 +11,12 @@ import { SpotifyDataService } from 'src/services/spotify-data.service';
 export class AppComponent {
   title = 'RandomSpot';
   artists$: Observable<{ name: string; image: string }[]>;
-  private selectedArtists: any[] = [];
+  selectedArtists: any[] = [];
 
   constructor(private spotifyService: SpotifyDataService) {
     this.artists$ = spotifyService.recommendations$;
-    this.artists$.subscribe((_) => {
-      this.selectedArtists = [];
+    this.artists$.pipe(debounceTime(1000)).subscribe((_) => {
+      this.clearSelectedArtists();
     });
   }
 
@@ -25,10 +26,28 @@ export class AppComponent {
     }
   }
 
-  onKeyPressed(event: any) {
+  onSearchKeyPressed(event: any) {
+    this.onKeyPressed(event, () =>
+      this.searchSimilarArtists(event.srcElement.value)
+    );
+  }
+
+  onPlaylistKeyPressed(event: any) {
+    this.onKeyPressed(event, () => this.makePlaylist(event.srcElement.value));
+  }
+
+  private onKeyPressed(event: any, callback: () => any) {
     if (event.code === 'Enter') {
-      this.searchSimilarArtists(event.srcElement.value);
+      callback();
     }
+  }
+
+  makePlaylist(playlistName: string) {
+    this.spotifyService.makePlaylistFromArtists(
+      playlistName,
+      this.selectedArtists,
+      () => this.clearSelectedArtists()
+    );
   }
 
   selectArtist(artist: any, isSelected: boolean) {
@@ -39,5 +58,9 @@ export class AppComponent {
     } else {
       this.selectedArtists = this.selectedArtists.filter(isArtist);
     }
+  }
+
+  private clearSelectedArtists() {
+    this.selectedArtists = [];
   }
 }
