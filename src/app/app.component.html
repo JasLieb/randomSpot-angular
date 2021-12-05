@@ -1,14 +1,14 @@
-<div style="display: flex; flex-direction: row; align-content: center; justify-content: center; max-height: 25%;">
-  <mat-form-field>
-    <mat-label>Favorite band</mat-label>
-    <input matInput #artistSearch placeholder="Ex. Artist" value="Lettuce" (keydown)="onKeyPressed($event)">
-  </mat-form-field>
-  <button mat-button (click)="searchArtist(artistSearch.value)">Go !</button>
+<div class="app-container">
+  <input
+    #artistSearch
+    placeholder="Ex. Artist"
+    value="Lettuce"
+    (keydown)="onKeyPressed($event)"
+  />
+  <button mat-button (click)="searchSimilarArtists(artistSearch.value)">Go !</button>
 </div>
-<div
-  style="max-height: 75%; display: flex; flex-flow: row wrap; align-items: center; justify-content: space-between; overflow-y: scroll;">
-  <div *ngFor="let artist of artists$ | async" style="width: 20%;">
-    <pre>{{ artist.name }}</pre>
-    <img [src]="artist.image" style=" max-height: fit-content; width: 80%;" />
+<div class="artists-container">
+  <div *ngFor="let artist of artists$ | async" class="artists-item">
+    <app-artist-item [artist]="artist"></app-artist-item>
   </div>
 </div>

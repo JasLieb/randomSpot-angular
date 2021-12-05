@@ -1,0 +1,21 @@
+.app-container {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  min-height: 15%;
+}
+
+.artists-container {
+  max-height: 80%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+  overflow-y: auto;
+  padding: 2em;
+}
+
+.artists-item {
+  max-width: 18%;
+}

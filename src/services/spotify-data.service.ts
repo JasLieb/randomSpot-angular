@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject  } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -17,6 +18,51 @@ export class SpotifyDataService {
 
   constructor(private httpClient: HttpClient) {
     this.initToken();
+  }
+
+  getArtist(artist: string): Observable<any> {
+    return this.get(`search?q=${artist}&type=artist`); 
+  }
+
+  getArtistTopTacks(artist: string) : Observable<any> {
+    return this.getArtist(artist)
+      .pipe(
+        switchMap((rep: any) => {
+          const foundArtist = rep.artists.items.find((ar: any) => ar.name.toLowerCase() === artist.toLowerCase()) || rep.artists.items[0];
+          return this.get(`artists/${foundArtist.id}/top-tracks?market=FR`)
+        })
+      )
+  }
+
+  getTopArtist(): Observable<any> {
+    return this.get(`me/top/artists`); 
+  }
+
+  searchArtists(artist: string) {
+    this.recommendationsSubject.next([]);
+    this.getArtist(artist).subscribe(
+      (response: any) => 
+        response
+          .artists
+          .items
+          .filter(
+            (a: any) => 
+              !this.knowTopArtists.some((kta: any) => kta.name == a.name.toLowerCase())
+          )
+          .forEach(
+            (repArtist: any) => {
+            this.emitRecommendationsRelatedArtists(repArtist);
+          })
+    );
+  }
+
+  searchTopTracksArtist(artist: string): Observable<any> {
+    return this.getArtistTopTacks(artist)
+    .pipe(
+      map(
+        (response: any) => response.tracks
+      )
+    );
   }
 
   private initToken() {
@@ -43,25 +89,6 @@ export class SpotifyDataService {
     );
   }
 
-  searchArtist(artist: string) {
-    this.recommendationsSubject.next([]);
-    this.getArtist(artist).subscribe(
-      (response: any) => 
-        response
-          .artists
-          .items
-          .filter(
-            (a: any) => 
-              a.name.toLowerCase() === artist.toLowerCase()
-              && !this.knowTopArtists.some((kta: any) => kta.name == artist.toLowerCase())
-          )
-          .forEach(
-            (repArtist: any) => {
-            this.emitRecommendationsRelatedArtists(repArtist);
-          })
-    );
-  }
-
   private authorize() {
     var scope = 'user-read-private user-top-read';
     var state = "suyenjuyridkgprm";
@@ -75,7 +102,7 @@ export class SpotifyDataService {
   }
 
   private emitRecommendationsRelatedArtists(topArtist: any) {
-    this.get(`artists/${topArtist.id}/related-artists?limit`).subscribe(
+    this.get(`artists/${topArtist.id}/related-artists`).subscribe(
       (response: any) => {
         this.emitRecommendation(response);
       }
@@ -83,20 +110,15 @@ export class SpotifyDataService {
   }
 
   private emitRecommendation(response: any) {
-    this.recommendationsSubject.next(
-      this.makeRecommendations(response)
-    );
+    if(response.artists.length > 0)
+      this.recommendationsSubject.next(
+        this.makeRecommendations(response)
+      );
   }
 
   private makeRecommendations(response: any): { name: string; image: string; }[] {
     return this.recommendationsSubject.value.concat(
       (response.artists as [])
-        .filter((artist: any) =>
-          !(
-            (response.artists as any[]).filter(a => a.name == artist.name).length > 1 ||
-            false
-          )
-        )
         .map((relatedArtist: any) => {
           return {
             name: relatedArtist.name,
@@ -106,22 +128,28 @@ export class SpotifyDataService {
     );
   }
 
-  getArtist(artist: string): Observable<any> {
-    return this.get(`search?q=${artist}&type=artist`); 
-  }
-
-  getTopArtist(): Observable<any> {
-    return this.get(`me/top/artists`); 
-  }
-
   private get(url: string) {
-    const headers = new HttpHeaders()
+    return this.httpClient.get(
+      `https://api.spotify.com/v1/${url}`,
+      { 
+        headers: this.getHeaders() 
+      }
+    );
+  }
+
+  private post(url: string, data: any) {
+    return this.httpClient.post(
+      `https://api.spotify.com/v1/${url}`,
+      data,
+      {
+        headers: this.getHeaders()
+      }
+    )
+  }
+
+  private getHeaders() : HttpHeaders{
+    return new HttpHeaders()
       .set('Authorization', `Bearer ${this.token}`)
       .set('Content-Type', 'application/json');
-
-    return this.httpClient.get(
-      `https://api.spotify.com/v1/${url}`, 
-      {headers}
-    );
   }
 }

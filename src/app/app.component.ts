@@ -18,13 +18,13 @@ export class AppComponent {
     this.artists$ = spotifyService.recommendations$;
   }
 
-  searchArtist(artist: string) {
-    this.spotifyService.searchArtist(artist);
+  searchSimilarArtists(artist: string) {
+    this.spotifyService.searchArtists(artist);
   }
 
   onKeyPressed(event: any) {
     if (event.code === 'Enter') {
-      this.searchArtist(event.srcElement.value);
+      this.searchSimilarArtists(event.srcElement.value);
     }
   }
 

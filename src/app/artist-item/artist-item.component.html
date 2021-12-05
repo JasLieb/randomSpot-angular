@@ -1,0 +1,10 @@
+<div class="artist-item-container">
+    <h4>{{ artist.name }}</h4>
+    <img [src]="artist.image" class="artist-item-image" />
+    <button mat-button (click)="searchTopTrackArtist()">Top Tracks !</button>
+    <ul>
+        <li *ngFor="let track of topTracks$ | async">
+            {{track.name}}
+        </li>
+    </ul>
+</div>

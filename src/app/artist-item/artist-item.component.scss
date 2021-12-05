@@ -1,0 +1,16 @@
+// :host {
+//     width: 25%;
+// }
+
+.artist-item-container {
+    // width: 20%;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.artist-item-image {
+    max-height: fit-content;
+    width: 75%;
+  }

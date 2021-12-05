@@ -10,10 +10,12 @@ import {MatButtonModule} from '@angular/material/button';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ArtistItemComponent } from './artist-item/artist-item.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ArtistItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -23,8 +25,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     BrowserAnimationsModule
   ],
-  providers: [SpotifyDataService],
-  exports: [],
+  providers: [
+    SpotifyDataService
+  ],
+  exports: [
+    ArtistItemComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
