@@ -10,12 +10,14 @@ import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 })
 export class AppComponent {
   title = 'RandomSpot';
+  errors$: Observable<string[]>;
   artists$: Observable<
     { id: string; name: string; image: string; isSelected: boolean }[]
   >;
   selectedArtists: any[] = [];
 
   constructor(private spotifyService: SpotifyDataService) {
+    this.errors$ = spotifyService.errors$;
     this.artists$ = spotifyService.recommendations$;
     this.artists$.pipe(debounceTime(1000)).subscribe((_) => {
       this.clearSelectedArtists();

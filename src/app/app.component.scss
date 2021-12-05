@@ -1,9 +1,14 @@
-.app-container {
+.app-container,
+.errors-container {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  align-content: center;
+  align-items: center;
   justify-content: center;
+}
+
+.errors-container {
+  flex-direction: row !important;
 }
 
 .app-actions {

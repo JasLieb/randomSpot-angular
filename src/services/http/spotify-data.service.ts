@@ -7,9 +7,11 @@ import { environment } from 'src/environments/environment';
 type action = () => void;
 @Injectable({ providedIn: 'root' })
 export class SpotifyDataService {
-  private USER_ID = environment.user_id;
   private token: string | null = null;
   private knowTopArtists = [];
+
+  private errorsSubject = new BehaviorSubject<string[]>([]);
+  errors$: Observable<string[]> = this.errorsSubject.asObservable();
 
   private recommendationsSubject = new BehaviorSubject<
     { id: string; name: string; image: string; isSelected: boolean }[]
@@ -135,16 +137,39 @@ export class SpotifyDataService {
   }
 
   private authorize() {
+    let clientId = this.getClientId();
+    if (!clientId) {
+      this.emitErrors([
+        'Without your Client ID, no connection are possible to your Spotify account',
+      ]);
+      return;
+    }
+
     var scope = 'user-read-private user-top-read';
     var state = 'suyenjuyridkgprm';
     var url = 'https://accounts.spotify.com/authorize';
     url += '?response_type=token';
-    url += '&client_id=' + encodeURIComponent(this.USER_ID);
+    url += '&client_id=' + encodeURIComponent(clientId);
     url += '&scope=' + encodeURIComponent(scope);
     url +=
       '&redirect_uri=' + encodeURIComponent('http://localhost:4200/redirect');
     url += '&state=' + encodeURIComponent(state);
     window.location.href = url;
+  }
+
+  private emitErrors(errors: string[]) {
+    this.errorsSubject.next(errors);
+  }
+
+  private getClientId() {
+    let clientId = '';
+    if(!environment.production){
+      clientId = environment.user_id;
+    }
+    else{
+      clientId = prompt('Please give your Spotify Client ID') || '';
+    }
+    return clientId;
   }
 
   private emitRecommendationsRelatedArtists(topArtist: any) {
