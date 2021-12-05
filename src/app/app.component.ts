@@ -55,9 +55,22 @@ export class AppComponent {
     isSelected: boolean;
   }) {
     artist.isSelected = !artist.isSelected;
+    if(artist.isSelected) {
+      this.selectedArtists.push(artist);
+    }
+    else {
+      this.selectedArtists = this.selectedArtists.reduce((acc, selectedArtist) => {
+        if(selectedArtist.id !== artist.id)
+          acc.push(this.selectArtist);
+        return acc;
+      }, []);
+    }
   }
 
-  private clearSelectedArtists() {
+  clearSelectedArtists() {
+    this.selectedArtists.forEach(
+      artist => artist.isSelected = false
+    );
     this.selectedArtists = [];
   }
 

@@ -1,7 +1,7 @@
 <div *ngIf="(errors$ | async)!.length === 0; else errorsTemplate">
   <div class="app-container">
     <div class="app-actions">
-      <label class="app-actions-label"> Give an artist's name : </label>
+      <label class="app-actions-label"> Search an artist by this name : </label>
       <input
         class="app-action-input"
         #artistSearch
@@ -21,8 +21,9 @@
       class="app-actions"
       *ngIf="selectedArtists && selectedArtists.length > 0"
     >
-      <label class="app-actions-label">
+      <label class="app-actions-label app-actions-label-icon">
         You have selected {{ selectedArtists.length }} artists
+        <mat-icon (click)="clearSelectedArtists()">delete</mat-icon>
       </label>
       <input
         class="app-action-input"

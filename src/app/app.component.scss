@@ -12,6 +12,7 @@
 }
 
 .app-actions {
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -19,15 +20,21 @@
 }
 
 .app-actions-label,
+.app-actions-label-icon,
 .app-action-button {
   flex: 0.15;
   padding: 1em;
 }
 
+.app-actions-label-icon {
+  display: flex;
+  align-items: center;
+}
+
 .app-action-input {
   flex: 1;
   max-width: 25%;
-  box-shadow: gray;
+  margin-left: auto;
   text-align: center;
 }
 
