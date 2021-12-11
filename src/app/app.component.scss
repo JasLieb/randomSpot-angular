@@ -13,6 +13,7 @@
 
 .app-actions {
   width: 100%;
+  height: 10%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -40,6 +41,7 @@
 
 .artists-container {
   display: flex;
+  height: 90%;
   flex-flow: row wrap;
   align-items: center;
   justify-content: space-between;
