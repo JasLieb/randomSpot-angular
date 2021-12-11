@@ -3,7 +3,7 @@
   [ngClass]="{ 'selected-artist-item': artist.isSelected }"
 >
   <h4>{{ artist.name }}</h4>
-  <img [src]="artist.image" class="artist-item-image" />
+  <img [src]="imageSource" class="artist-item-image" />
   <button mat-button (click)="toggleTopTrackArtist($event)">
     Top Tracks !
   </button>

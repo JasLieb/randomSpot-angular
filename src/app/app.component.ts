@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { Artist, InteractableArtist } from 'src/core/models/artist.model';
 import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 
 @Component({
@@ -11,15 +12,8 @@ import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 export class AppComponent {
   title = 'RandomSpot';
   errors$: Observable<string[]>;
-  artists$: Observable<
-    { id: string; name: string; image: string; isSelected: boolean }[]
-  >;
-  selectedArtists: {
-    id: string;
-    name: string;
-    image: string;
-    isSelected: boolean;
-  }[] = [];
+  artists$: Observable<InteractableArtist[]>;
+  selectedArtists: InteractableArtist[] = [];
 
   constructor(private spotifyService: SpotifyDataService) {
     this.errors$ = spotifyService.errors$;
@@ -29,9 +23,9 @@ export class AppComponent {
     });
   }
 
-  searchSimilarArtists(artist: string) {
-    if (artist) {
-      this.spotifyService.searchArtists(artist);
+  searchSimilarArtists(artistName: string) {
+    if (artistName) {
+      this.spotifyService.searchArtists(artistName);
     }
   }
 
@@ -53,34 +47,24 @@ export class AppComponent {
     );
   }
 
-  selectArtist(artist: {
-    id: string;
-    name: string;
-    image: string;
-    isSelected: boolean;
-  }) {
+  selectArtist(artist: Artist) {
     artist.isSelected = !artist.isSelected;
-    if(artist.isSelected) {
+    if (artist.isSelected) {
       this.selectedArtists.push(artist);
-    }
-    else {
-      this.selectedArtists = this.selectedArtists.reduce((acc, selectedArtist) => {
-        if(selectedArtist.id !== artist.id)
-          acc.push(selectedArtist);
-        return acc;
-      }, [] as {
-        id: string;
-        name: string;
-        image: string;
-        isSelected: boolean;
-      }[]);
+    } else {
+      this.selectedArtists = this.selectedArtists.reduce(
+        (acc, selectedArtist) => {
+          if (selectedArtist.id !== artist.id) 
+            acc.push(selectedArtist);
+          return acc;
+        },
+        [] as Artist[]
+      );
     }
   }
 
   clearSelectedArtists() {
-    this.selectedArtists.forEach(
-      artist => artist.isSelected = false
-    );
+    this.selectedArtists.forEach((artist) => (artist.isSelected = false));
     this.selectedArtists = [];
   }
 

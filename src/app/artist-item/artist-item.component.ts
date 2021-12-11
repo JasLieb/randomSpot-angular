@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { InteractableArtist } from 'src/core/models/artist.model';
 import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 
 @Component({
@@ -8,15 +9,21 @@ import { SpotifyDataService } from 'src/services/http/spotify-data.service';
   styleUrls: ['./artist-item.component.scss'],
 })
 export class ArtistItemComponent implements OnInit {
-  @Input() artist: { id: string, name: string; image: string, isSelected: boolean };
+  @Input() artist: InteractableArtist;
 
   topTracks$: Observable<any[]> = of([]);
   isVisibleTopTracks = false;
   
   private wasToggledOnce = false;
 
+  get imageSource(): string {
+    return this.artist.images.length > 0 
+      ? this.artist.images[0].url
+      : ''
+  }
+
   constructor(private spotifyService: SpotifyDataService) {
-    this.artist = {id: '', name: '', image: '', isSelected: false};
+    this.artist = {id: '', name: '', images: [], isSelected: false};
   }
 
   ngOnInit(): void {}

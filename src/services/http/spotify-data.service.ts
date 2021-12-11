@@ -3,8 +3,9 @@ import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Artist, InteractableArtist } from 'src/core/models/artist.model';
+import { Action } from 'src/core/models/utils.model';
 
-type action = () => void;
 @Injectable({ providedIn: 'root' })
 export class SpotifyDataService {
   private token: string | null = null;
@@ -13,12 +14,11 @@ export class SpotifyDataService {
   private errorsSubject = new BehaviorSubject<string[]>([]);
   errors$: Observable<string[]> = this.errorsSubject.asObservable();
 
-  private recommendationsSubject = new BehaviorSubject<
-    { id: string; name: string; image: string; isSelected: boolean }[]
-  >([]);
-  recommendations$: Observable<
-    { id: string; name: string; image: string; isSelected: boolean }[]
-  > = this.recommendationsSubject.asObservable();
+  private recommendationsSubject = new BehaviorSubject<InteractableArtist[]>(
+    []
+  );
+  recommendations$: Observable<InteractableArtist[]> =
+    this.recommendationsSubject.asObservable();
 
   constructor(private httpClient: HttpClient) {
     this.initToken(() => this.emitTopArtists());
@@ -58,11 +58,7 @@ export class SpotifyDataService {
     );
   }
 
-  makePlaylistFromArtists(
-    name: string,
-    artists: { id: string; name: string; image: string }[],
-    callback: action
-  ) {
+  makePlaylistFromArtists(name: string, artists: Artist[], callback: Action) {
     forkJoin(
       artists.map((artist) => this.getArtistTopTacks(artist.id))
     ).subscribe((responses) => {
@@ -74,7 +70,7 @@ export class SpotifyDataService {
     });
   }
 
-  private makePlaylist(name: string, tracks: any[], callback: action) {
+  private makePlaylist(name: string, tracks: any[], callback: Action) {
     this.getMe().subscribe((meResponse: any) => {
       this.post(`users/${meResponse.id}/playlists`, {
         name,
@@ -93,7 +89,7 @@ export class SpotifyDataService {
   private postTrackIntoPlaylist(
     playlistId: string,
     tracks: any[],
-    callback: action
+    callback: Action
   ) {
     this.post(`playlists/${playlistId}/tracks`, {
       uris: tracks
@@ -106,7 +102,7 @@ export class SpotifyDataService {
     return this.get('me');
   }
 
-  private initToken(callback: action) {
+  private initToken(callback: Action) {
     if (!this.tryInitToken()) {
       this.authorize();
       return;
@@ -132,7 +128,7 @@ export class SpotifyDataService {
     this.getTopArtist().subscribe((rep) => {
       this.knowTopArtists = rep.items;
       rep.artists = rep.items;
-      this.emitRecommendation(rep);
+      this.emitRecommendation(rep.artists);
     });
   }
 
@@ -151,8 +147,7 @@ export class SpotifyDataService {
     url += '?response_type=token';
     url += '&client_id=' + encodeURIComponent(clientId);
     url += '&scope=' + encodeURIComponent(scope);
-    url +=
-      '&redirect_uri=' + encodeURIComponent(environment.redirect_url);
+    url += '&redirect_uri=' + encodeURIComponent(environment.redirect_url);
     url += '&state=' + encodeURIComponent(state);
     window.location.href = url;
   }
@@ -163,48 +158,38 @@ export class SpotifyDataService {
 
   private getClientId() {
     let clientId = '';
-    if(!environment.production){
+    if (!environment.production) {
       clientId = environment.user_id;
-    }
-    else{
+    } else {
       clientId = prompt('Please give your Spotify Client ID') || '';
     }
     return clientId;
   }
 
-  private emitRecommendationsRelatedArtists(topArtist: any) {
+  private emitRecommendationsRelatedArtists(topArtist: Artist) {
     this.get(`artists/${topArtist.id}/related-artists`).subscribe(
       (response: any) => {
-        this.emitRecommendation(response);
+        this.emitRecommendation(response.artists);
       }
     );
   }
 
-  private emitRecommendation(response: any) {
-    if (response.artists.length > 0)
-      this.recommendationsSubject.next(this.makeRecommendations(response));
+  private emitRecommendation(artists: Artist[]) {
+    if (artists.length > 0)
+      this.recommendationsSubject.next(this.makeRecommendations(artists));
   }
 
-  private makeRecommendations(
-    response: any
-  ): { id: string; name: string; image: string; isSelected: boolean }[] {
+  private makeRecommendations(artists: Artist[]): Artist[] {
     return this.recommendationsSubject.value.concat(
-      (response.artists as []).map((relatedArtist: any) => {
-        return this.makeRecommandation(relatedArtist);
-      })
+      artists.map((relatedArtist) => this.makeRecommandation(relatedArtist))
     );
   }
 
-  private makeRecommandation(artist: any): {
-    id: string;
-    name: any;
-    image: any;
-    isSelected: false;
-  } {
+  private makeRecommandation(artist: Artist): InteractableArtist {
     return {
       id: artist.id,
       name: artist.name,
-      image: artist.images[0] ? artist.images[0].url : '',
+      images: artist.images,
       isSelected: false,
     };
   }
