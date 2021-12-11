@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Artist, InteractableArtist } from 'src/core/models/artist.model';
+import { ArtistService } from 'src/services/http/artist.service';
+import { PlaylistService } from 'src/services/http/playlist.service';
 import { SpotifyDataService } from 'src/services/http/spotify-data.service';
 
 @Component({
@@ -15,17 +17,25 @@ export class AppComponent {
   artists$: Observable<InteractableArtist[]>;
   selectedArtists: InteractableArtist[] = [];
 
-  constructor(private spotifyService: SpotifyDataService) {
-    this.errors$ = spotifyService.errors$;
-    this.artists$ = spotifyService.recommendations$;
+  constructor(
+    private spotifyService: SpotifyDataService,
+    private artistService: ArtistService,
+    private playlistService: PlaylistService
+  ) {
+    this.errors$ = this.spotifyService.errors$;
+    this.artists$ = this.artistService.recommendations$;
     this.artists$.pipe(debounceTime(1000)).subscribe((_) => {
       this.clearSelectedArtists();
+    });
+
+    this.spotifyService.tokenInitialized$.subscribe((isInitialized) => {
+      if (isInitialized) this.artistService.emitTopArtists();
     });
   }
 
   searchSimilarArtists(artistName: string) {
     if (artistName) {
-      this.spotifyService.searchArtists(artistName);
+      this.artistService.searchArtists(artistName);
     }
   }
 
@@ -40,7 +50,7 @@ export class AppComponent {
   }
 
   makePlaylist(playlistName: string) {
-    this.spotifyService.makePlaylistFromArtists(
+    this.playlistService.makePlaylistFromArtists(
       playlistName,
       this.selectedArtists,
       () => this.clearSelectedArtists()
@@ -54,8 +64,7 @@ export class AppComponent {
     } else {
       this.selectedArtists = this.selectedArtists.reduce(
         (acc, selectedArtist) => {
-          if (selectedArtist.id !== artist.id) 
-            acc.push(selectedArtist);
+          if (selectedArtist.id !== artist.id) acc.push(selectedArtist);
           return acc;
         },
         [] as Artist[]

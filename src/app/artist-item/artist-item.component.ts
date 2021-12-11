@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { InteractableArtist } from 'src/core/models/artist.model';
-import { SpotifyDataService } from 'src/services/http/spotify-data.service';
+import { ArtistService } from 'src/services/http/artist.service';
 
 @Component({
   selector: 'app-artist-item',
@@ -22,7 +22,7 @@ export class ArtistItemComponent implements OnInit {
       : ''
   }
 
-  constructor(private spotifyService: SpotifyDataService) {
+  constructor(private artistService: ArtistService) {
     this.artist = {id: '', name: '', images: [], isSelected: false};
   }
 
@@ -34,7 +34,7 @@ export class ArtistItemComponent implements OnInit {
     
     if(!this.wasToggledOnce) {
       this.wasToggledOnce = true;
-      this.topTracks$ = this.spotifyService.searchTopTracksArtist(
+      this.topTracks$ = this.artistService.searchTopTracksArtist(
         this.artist.id
       );
     }
