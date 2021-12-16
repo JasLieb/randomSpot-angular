@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Artist, InteractableArtist } from 'src/core/models/artist.model';
+import { ExternalImage } from 'src/core/models/external-image.model';
 import { ArtistService } from 'src/services/http/artist.service';
 import { PlaylistService } from 'src/services/http/playlist.service';
 import { SpotifyDataService } from 'src/services/http/spotify-data.service';
@@ -23,14 +24,22 @@ export class AppComponent {
     private playlistService: PlaylistService
   ) {
     this.errors$ = this.spotifyService.errors$;
-    this.artists$ = this.artistService.recommendations$;
-    this.artists$.pipe(debounceTime(1000)).subscribe((_) => {
-      this.clearSelectedArtists();
-    });
+    this.artists$ = of([
+      ({
+        name: 'toto',
+        id: '123',
+        images: [{ url: 'https://m.media-amazon.com/images/I/51gu8z94KNL.jpg' } as ExternalImage],
+        isSelected: false,
+      } as InteractableArtist),
+    ]);
+    // this.artistService.recommendations$;
+    // this.artists$.pipe(debounceTime(1000)).subscribe((_) => {
+    //   this.clearSelectedArtists();
+    // });
 
-    this.spotifyService.tokenInitialized$.subscribe((isInitialized) => {
-      if (isInitialized) this.artistService.emitTopArtists();
-    });
+    // this.spotifyService.tokenInitialized$.subscribe((isInitialized) => {
+    //   if (isInitialized) this.artistService.emitTopArtists();
+    // });
   }
 
   searchSimilarArtists(artistName: string) {
